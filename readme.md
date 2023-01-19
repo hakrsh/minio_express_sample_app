@@ -3,7 +3,7 @@ This is a simple app written in express. When you launch it, it will connect to 
 
 ## steps to run
 1. install node
-2. install minio
+2. install minio, default username and password is 'minio' and 'miniostorage'. Start the server with 'minio server --console-address ":9000" /path/to/data'
 3. clone this repo
 4. run 'pip3 install names' to install the names packag, used to generate random names
 5. run 'npm install' to install dependencies

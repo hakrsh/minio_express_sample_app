@@ -16,8 +16,9 @@ app.get('/', (req, res) => {
     res.send('minio sample app');
 })
 // Create a bucket
+const bucketName = 'test123';
 app.get('/createBucket', (req, res) => {
-    minioClient.makeBucket('test', 'us-east-1', function (err) {
+    minioClient.makeBucket(bucketName, 'us-east-1', function (err) {
         if (err) return console.log(err)
         console.log('Bucket created successfully in "us-east-1".')
     });
@@ -45,10 +46,10 @@ app.get('/upload', (req, res) => {
             const fileStream = fs.createReadStream(file.path);
             const metaData = {
                 'Content-Type': 'application/octet-stream',
-                'name': file.name,
+                'nameX': file.name,
                 'age': file.age
             }
-            minioClient.putObject('test', file.name, fileStream, metaData, (err, etag) => console.log(err, etag) // err should be null
+            minioClient.putObject(bucketName, file.name, fileStream, metaData, (err, etag) => console.log(err, etag) // err should be null
             );
         })
     })

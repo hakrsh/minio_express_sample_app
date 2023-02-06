@@ -1,3 +1,7 @@
 chest_xray
 minio_data
 node_modules
+data*
+curated_data
+*png
+*jpg

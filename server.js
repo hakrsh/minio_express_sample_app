@@ -12,8 +12,9 @@ const MINIO_USE_SSL = false;
 
 const ELASTICSEARCH_HOST = 'http://192.168.1.189:9200';
 
-const index_name = 'testindex123';
-const bucketName = 'testpath123';
+const index_name = 'bulkdatatest';
+const bucketName = 'bulkdatatest';
+const BATCH_SIZE = 1000;
 
 const minioClient = new Minio.Client({
     endPoint: MINIO_ENDPOINT,
@@ -66,37 +67,29 @@ app.get('/upload', async (req, res) => {
             };
             indexing_data.push(doc);
         }
-        await fs.promises.writeFile('./indexing_data.json', JSON.stringify(indexing_data), 'utf8');
-        res.send('Uploaded files to minio server and wrote indexing data to file');
+        // await fs.promises.writeFile('./indexing_data.json', JSON.stringify(indexing_data), 'utf8');
+        await index(indexing_data);
+        res.send('Uploaded files to minio server and indexed data to elasticsearch');
     } catch (error) {
         console.log(error);
         res.status(500).send('An error occurred while uploading files to minio and writing indexing data to file');
     }
 });
 
-app.get('/index', async (req, res) => {
-    try {
-        const data = await fs.promises.readFile('./indexing_data.json', 'utf8');
-        const indexing_data = JSON.parse(data);
-        console.log('indexing_data : ', indexing_data);
+const index = async (indexing_data) => {
+    const body = indexing_data.reduce((bulkRequestBody, doc) => {
+        bulkRequestBody += JSON.stringify({ index: { _index: index_name } }) + '\n';
+        bulkRequestBody += JSON.stringify(doc) + '\n';
+        return bulkRequestBody;
+    }, '');
 
-        const body = indexing_data.reduce((bulkRequestBody, doc) => {
-            bulkRequestBody += JSON.stringify({ index: { _index: index_name } }) + '\n';
-            bulkRequestBody += JSON.stringify(doc) + '\n';
-            return bulkRequestBody;
-        }, '');
+    const response = await elasticsearchClient.bulk({
+        body: body
+    });
+    console.log('indexing completed');
+}
 
-        const response = await elasticsearchClient.bulk({
-            body: body
-        });
 
-        console.log('response : ', response);
-        res.send('Indexed data in elasticsearch');
-    } catch (error) {
-        console.log(error);
-        res.status(500).send('An error occurred while indexing data in elasticsearch');
-    }
-});
 
 app.get('/search/:name', async (req, res) => {
     const name = req.params.name;

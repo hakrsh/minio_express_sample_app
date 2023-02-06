@@ -12,9 +12,9 @@ const MINIO_USE_SSL = false;
 
 const ELASTICSEARCH_HOST = 'http://192.168.1.189:9200';
 
-const index_name = 'bulkdatatest';
-const bucketName = 'bulkdatatest';
-const BATCH_SIZE = 1000;
+const index_name = 'bulkdatatest5';
+const bucketName = 'bulkdatatest6';
+// const BATCH_SIZE = 1000;
 
 const minioClient = new Minio.Client({
     endPoint: MINIO_ENDPOINT,
@@ -45,19 +45,20 @@ app.get('/upload', async (req, res) => {
     try {
         const data = await fs.promises.readFile('./metadata.json', 'utf8');
         const files = JSON.parse(data);
-        console.log('files : ', files);
+        // console.log('files : ', files);
         for (const file of files) {
+            console.log('uploading file : ', file.path);
             const fileStream = fs.createReadStream(file.path);
             const etag = await new Promise((resolve, reject) => {
                 minioClient.putObject(bucketName, file.path, fileStream, (err, etag) => {
                     if (err) {
                         reject(err);
                     } else {
+                        console.log('uploaded file : ', file.path);
                         resolve(etag);
                     }
                 });
             });
-            console.log('etag : ', etag);
             const doc = {
                 bucketName: bucketName,
                 objectID: file.path,

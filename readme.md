@@ -8,9 +8,8 @@ This is a simple app written in express. When you launch it, it will connect to 
 3. clone this repo
 4. run 'pip3 install names' to install the names packag, used to generate random names
 5. run 'npm install' to install dependencies
-6. run 'node app.js' to start the app
+6. run 'node server.js' to start the app
 7. go to localhost:3000/createBucket to create a bucket, u can change the bucket name in app.js (bucketName)
 8. go to localhost:3000/upload to upload the data to minio
-9. go to localhost:3000/index to index the data to elasticsearch
-10. go to localhost:3000/search/<name> to search the data in elasticsearch
+9. go to localhost:3000/search/<name> to search the data in elasticsearch <!--Buggy-->
 <!-- 9. go to localhost:9000 to see the images in the minio server. Default username and password is 'minio' and 'miniostorage' -->

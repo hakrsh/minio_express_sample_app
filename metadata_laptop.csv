@@ -1,0 +1,20 @@
+Manufacturer,Model Name,Category,Screen Size,Screen,CPU,RAM, Storage,GPU,Operating System,Operating System Version,Weight,Price (Euros),file_path
+apple,macbook pro,ultrabook,"13.3""",ips panel retina display 2560x1600,intel core i5 2.3ghz,8gb,128gb ssd,intel iris plus graphics 640,macos,,1.37kg,"1339,69",./data/apple.jpeg
+apple,macbook air,ultrabook,"13.3""",1440x900,intel core i5 1.8ghz,8gb,128gb flash storage,intel hd graphics 6000,macos,,1.34kg,"898,94",./data/apple.jpeg
+hp,250 g6,notebook,"15.6""",full hd 1920x1080,intel core i5 7200u 2.5ghz,8gb,256gb ssd,intel hd graphics 620,no os,,1.86kg,"575,00",./data/hp.jpeg
+apple,macbook pro,ultrabook,"15.4""",ips panel retina display 2880x1800,intel core i7 2.7ghz,16gb,512gb ssd,amd radeon pro 455,macos,,1.83kg,"2537,45",./data/apple.jpeg
+apple,macbook pro,ultrabook,"13.3""",ips panel retina display 2560x1600,intel core i5 3.1ghz,8gb,256gb ssd,intel iris plus graphics 650,macos,,1.37kg,"1803,60",./data/apple.jpeg
+acer,aspire 3,notebook,"15.6""",1366x768,amd a9-series 9420 3ghz,4gb,500gb hdd,amd radeon r5,windows,10,2.1kg,"400,00",./data/default.jpg
+apple,macbook pro,ultrabook,"15.4""",ips panel retina display 2880x1800,intel core i7 2.2ghz,16gb,256gb flash storage,intel iris pro graphics,mac os,x,2.04kg,"2139,97",./data/apple.jpeg
+apple,macbook air,ultrabook,"13.3""",1440x900,intel core i5 1.8ghz,8gb,256gb flash storage,intel hd graphics 6000,macos,,1.34kg,"1158,70",./data/apple.jpeg
+asus,zenbook ux430un,ultrabook,"14.0""",full hd 1920x1080,intel core i7 8550u 1.8ghz,16gb,512gb ssd,nvidia geforce mx150,windows,10,1.3kg,"1495,00",./data/default.jpg
+acer,swift 3,ultrabook,"14.0""",ips panel full hd 1920x1080,intel core i5 8250u 1.6ghz,8gb,256gb ssd,intel uhd graphics 620,windows,10,1.6kg,"770,00",./data/default.jpg
+hp,250 g6,notebook,"15.6""",1366x768,intel core i5 7200u 2.5ghz,4gb,500gb hdd,intel hd graphics 620,no os,,1.86kg,"393,90",./data/hp.jpeg
+hp,250 g6,notebook,"15.6""",full hd 1920x1080,intel core i3 6006u 2ghz,4gb,500gb hdd,intel hd graphics 520,no os,,1.86kg,"344,99",./data/hp.jpeg
+apple,macbook pro,ultrabook,"15.4""",ips panel retina display 2880x1800,intel core i7 2.8ghz,16gb,256gb ssd,amd radeon pro 555,macos,,1.83kg,"2439,97",./data/apple.jpeg
+dell,inspiron 3567,notebook,"15.6""",full hd 1920x1080,intel core i3 6006u 2ghz,4gb,256gb ssd,amd radeon r5 m430,windows,10,2.2kg,"498,90",./data/dell.jpeg
+apple,"macbook 12""",ultrabook,"12.0""",ips panel retina display 2304x1440,intel core m m3 1.2ghz,8gb,256gb ssd,intel hd graphics 615,macos,,0.92kg,"1262,40",./data/apple.jpeg
+apple,macbook pro,ultrabook,"13.3""",ips panel retina display 2560x1600,intel core i5 2.3ghz,8gb,256gb ssd,intel iris plus graphics 640,macos,,1.37kg,"1518,55",./data/apple.jpeg
+dell,inspiron 3567,notebook,"15.6""",full hd 1920x1080,intel core i7 7500u 2.7ghz,8gb,256gb ssd,amd radeon r5 m430,windows,10,2.2kg,"745,00",./data/dell.jpeg
+apple,macbook pro,ultrabook,"15.4""",ips panel retina display 2880x1800,intel core i7 2.9ghz,16gb,512gb ssd,amd radeon pro 560,macos,,1.83kg,"2858,00",./data/apple.jpeg
+lenovo,ideapad 320-15ikb,notebook,"15.6""",full hd 1920x1080,intel core i3 7100u 2.4ghz,8gb,1tb hdd,nvidia geforce 940mx,no os,,2.2kg,"499,00",./data/lenovo.webp

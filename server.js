@@ -12,8 +12,8 @@ const MINIO_USE_SSL = false;
 
 const ELASTICSEARCH_HOST = 'http://192.168.1.189:9200';
 
-const index_name = 'bulkdatatest5';
-const bucketName = 'bulkdatatest6';
+const index_name = 'test-index';
+const bucketName = 'test-bucket';
 // const BATCH_SIZE = 1000;
 
 const minioClient = new Minio.Client({
@@ -87,6 +87,7 @@ const index = async (indexing_data) => {
     const response = await elasticsearchClient.bulk({
         body: body
     });
+    console.log(response)
     console.log('indexing completed');
 }
 
@@ -99,9 +100,9 @@ app.get('/search/:name', async (req, res) => {
         const response = await elasticsearchClient.search({
             index: index_name,
             body: {
-                query: {
-                    match: {
-                        name: name
+                "query": {
+                    "match": {
+                      "name":name
                     }
                 }
             }
@@ -109,8 +110,23 @@ app.get('/search/:name', async (req, res) => {
         console.log('response : ', response);
         const hits = response.hits.hits;
         const data = hits.map(hit => hit._source);
-        const object_ids = data.map(d => d.objectID);
-        res.send('Bucket name : ' + data[0].bucketName + ' Object ids : ' + object_ids);
+        ret = data.map(d => {
+            obj = {
+                bucketName: d.bucketName,
+                objectID: d.objectID,
+                etag: d.etag,
+                metadata: {
+                    name: d.name,
+                    age: d.age
+                }
+            }
+            // const fileStream = minioClient.getObject(bucketName, d.objectID);
+            // d.file = fileStream;
+            return obj;
+        });
+        // set content type to json
+        res.setHeader('Content-Type', 'application/json');
+        res.send(ret);
     } catch (error) {
         console.log(error);
         res.status(500).send('An error occurred while searching data in elasticsearch');

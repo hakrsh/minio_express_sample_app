@@ -40,11 +40,50 @@ app.get('/createBucket', (req, res) => {
     res.send('Bucket created successfully');
 })
 
-app.get('/upload', async (req, res) => {
-    const indexing_data = [];
+app.get('/upload/:format?*', async (req, res) => {
+const indexing_data = [];
     try {
-        const data = await fs.promises.readFile('./metadata.json', 'utf8');
+        // For accept file of csv format use parameter - ?format=csv in the url.
+        var format = req.query.format
+        var data = []
+        if (format == "csv") {
+            csvData = await fs.promises.readFile('./metadata.csv', 'utf8');
+            rows = csvData.split('\n');
+            if(rows.length != 0) {
+                titleRow = rows[0];
+                columns = titleRow.split(',');
+                columns = columns.map(c => {
+                    return c.trim().replace(/['"]+/g, '')
+                 })
+                for (var i=1; i<rows.length; i++) {
+                    fields = rows[i].split(',')
+                    if(fields.length != columns.length)
+                        continue;
+                    
+                    fields = fields.map(c => {
+                        c = c.trim().replace(/['"]+/g, '')
+                        if(!isNaN(c)) {
+                            return Number(c);
+                        }else if (c.toLowerCase() == "true" || c.toLowerCase() == "false") {
+                            return c == "true"
+                        }
+                        return c;
+                    })
+                    var obj = {};
+                    for(var j=0; j<columns.length; j++) {
+                        obj[columns[j].toString()] = fields[j];
+                    }
+                    data.push(obj);
+                }
+            }
+            data = JSON.stringify(data);
+            // console.log(data)
+        } else {
+            data = await fs.promises.readFile('./metadata.json', 'utf8');
+        }
+        // console.log(data)
         const files = JSON.parse(data);
+        console.log(files)
         // console.log('files : ', files);
         for (const file of files) {
             console.log('uploading file : ', file.path);

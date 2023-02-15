@@ -6,11 +6,11 @@ const Minio = require('minio');
 
 const MINIO_ACCESS_KEY = 'minio';
 const MINIO_SECRET_KEY = 'miniostorage'
-const MINIO_ENDPOINT = '192.168.1.189';
+const MINIO_ENDPOINT = 'localhost';
 const MINIO_PORT = 9000;
 const MINIO_USE_SSL = false;
 
-const ELASTICSEARCH_HOST = 'http://192.168.1.189:9200';
+const ELASTICSEARCH_HOST = 'http://localhost:9200';
 
 const index_name = 'test-index';
 const bucketName = 'test-bucket';
@@ -40,81 +40,90 @@ app.get('/createBucket', (req, res) => {
     res.send('Bucket created successfully');
 })
 
-app.get('/upload/:format?*', async (req, res) => {
-const indexing_data = [];
-    try {
-        // For accept file of csv format use parameter - ?format=csv in the url.
-        var format = req.query.format
-        var data = []
-        if (format == "csv") {
-            csvData = await fs.promises.readFile('./metadata.csv', 'utf8');
-            rows = csvData.split('\n');
-            if(rows.length != 0) {
-                titleRow = rows[0];
-                columns = titleRow.split(',');
-                columns = columns.map(c => {
-                    return c.trim().replace(/['"]+/g, '')
-                 })
-                for (var i=1; i<rows.length; i++) {
-                    fields = rows[i].split(',')
-                    if(fields.length != columns.length)
-                        continue;
-                    
-                    fields = fields.map(c => {
-                        c = c.trim().replace(/['"]+/g, '')
-                        if(!isNaN(c)) {
-                            return Number(c);
-                        }else if (c.toLowerCase() == "true" || c.toLowerCase() == "false") {
-                            return c == "true"
+// query - /upload?format=csv&filecolname=file_path
+app.get('/upload', async (req, res) => {
+    const indexing_data = [];
+        try {
+            // For accept file of csv format use parameter - ?format=csv in the url.
+            var format = req.query.format
+            var fileColName = req.query.filecolname
+            if(fileColName == undefined)
+                fileColName = "file"
+            var data = []
+            if (format == "csv") {
+                csvData = await fs.promises.readFile('./metadata_laptop.csv', 'utf8');
+                rows = csvData.split(/(?:\r\n|\n)+/).filter(function(el) {return el.length != 0});
+                if(rows.length != 0) {
+                    columns = rows.splice(0, 1)[0].split(",");
+                    columns = columns.map(c => {
+                        return c.trim().replace(/['"]+/g, '')
+                     })
+                    for (var i=1; i<rows.length; i++) {
+                        let valuesRegExp = /(?:\"([^\"]*(?:\"\"[^\"]*)*)\")|([^\",]+)/g;
+                        // let elements = [];
+    
+                        let element = {};
+                        let j = 0;
+                        rows[i] = rows[i].replace(",,", ",NULL_VAL,")
+                        while (matches = valuesRegExp.exec(rows[i])) {
+                            var value = matches[1] || matches[2];
+                            value = value.replace(/\"\"/g, "\"");
+                            if (!isNaN(value))
+                                value = Number(value)
+                            else if(value == "true" || value == "false")
+                                value = value == "true"
+                            
+                            if(value == "NULL_VAL")
+                                value = ""
+                            element[columns[j]] = value;
+                            j++;
                         }
-                        return c;
-                    })
-                    var obj = {};
-                    for(var j=0; j<columns.length; j++) {
-                        obj[columns[j].toString()] = fields[j];
+                        data.push(element);
                     }
-                    data.push(obj);
                 }
+                data = JSON.stringify(data);
+            } else {
+                data = await fs.promises.readFile('./metadata.json', 'utf8');
             }
-            data = JSON.stringify(data);
-            // console.log(data)
-        } else {
-            data = await fs.promises.readFile('./metadata.json', 'utf8');
-        }
-        // console.log(data)
-        const files = JSON.parse(data);
-        console.log(files)
-        // console.log('files : ', files);
-        for (const file of files) {
-            console.log('uploading file : ', file.path);
-            const fileStream = fs.createReadStream(file.path);
-            const etag = await new Promise((resolve, reject) => {
-                minioClient.putObject(bucketName, file.path, fileStream, (err, etag) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        console.log('uploaded file : ', file.path);
-                        resolve(etag);
-                    }
+            const files = JSON.parse(data);
+            console.log(files)
+            for (const file of files) {
+                if(file[fileColName].startsWith("./")) {
+                    file[fileColName] = file[fileColName].slice(2)
+                }
+                if (fs.existsSync(file[fileColName])) {
+                    console.log('uploading file : ', file[fileColName]);
+                    const fileStream = fs.createReadStream(file[fileColName]);
+                    const etag = await new Promise((resolve, reject) => {
+                    minioClient.putObject(bucketName, file[fileColName], fileStream, (err, etag) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            console.log('uploaded file : ', file[fileColName]);
+                            resolve(etag);
+                        }
+                    });
                 });
-            });
-            const doc = {
-                bucketName: bucketName,
-                objectID: file.path,
-                etag: etag,
-                name: file.name,
-                age: file.age
-            };
-            indexing_data.push(doc);
+                const doc = {
+                    bucketName: bucketName,
+                    objectID: file[fileColName],
+                    etag: etag,
+                    name: file.name,
+                    age: file.age
+                };
+                indexing_data.push(doc);
+            } else {
+                console.log("file : " + file[fileColName] + " does not exist.")
+            }
+            }
+            // await fs.promises.writeFile('./indexing_data.json', JSON.stringify(indexing_data), 'utf8');
+            await index(indexing_data);
+            res.send('Uploaded files to minio server and indexed data to elasticsearch');
+        } catch (error) {
+            console.log(error);
+            res.status(500).send('An error occurred while uploading files to minio and writing indexing data to file');
         }
-        // await fs.promises.writeFile('./indexing_data.json', JSON.stringify(indexing_data), 'utf8');
-        await index(indexing_data);
-        res.send('Uploaded files to minio server and indexed data to elasticsearch');
-    } catch (error) {
-        console.log(error);
-        res.status(500).send('An error occurred while uploading files to minio and writing indexing data to file');
-    }
-});
+    });
 
 const index = async (indexing_data) => {
     const body = indexing_data.reduce((bulkRequestBody, doc) => {
